@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zac/contracts/v1/manifest.schema.json",
+  "title": "Zac Module Manifest (v1)",
+  "description": "Contrato que cada modulo publica para registrarse en Zac. El registry valida contra este esquema en el gate de borde.",
+  "type": "object",
+  "required": ["name", "version", "invocation", "capabilities", "actions", "tenancy"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string" },
+    "version": { "type": "string", "description": "SemVer" },
+    "invocation": {
+      "type": "object",
+      "required": ["type", "endpoint"],
+      "properties": {
+        "type": { "enum": ["hosted-api", "mcp-http"] },
+        "endpoint": { "type": "string" }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Intenciones que sirve el modulo. El router matchea contra esto.",
+      "items": {
+        "type": "object",
+        "required": ["id", "description"],
+        "properties": { "id": { "type": "string" }, "description": { "type": "string" } }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "description": "RBAC por accion: cada accion lista los roles que pueden invocarla.",
+      "items": {
+        "type": "object",
+        "required": ["id", "roles"],
+        "properties": { "id": { "type": "string" }, "roles": { "type": "array", "items": { "type": "string" } } }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "description": "Artefactos que consume y emite. Zac los transporta, no los autora.",
+      "properties": {
+        "consumes": { "type": "array", "items": { "type": "string" } },
+        "emits": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "description": "audit.events es la COTA SUPERIOR de lo que el modulo tiene permitido escribir al ledger (declaracion de capacidad, no promesa de comportamiento actual). Declarar un evento antes de ejercerlo es forward-declaring valido. La invariante 'emitido subconjunto de declarado' se chequea OFFLINE (auditor de borde / CI), nunca dentro de ledger.emit.",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "enum": ["invocation", "gate_signature", "ingestion", "error"],
+            "$comment": "Mismo enum que event_type en ledger-event.schema.json. Espejado a proposito para que cada esquema valide standalone (sin resolver cross-file). El auditor determinista (doble gate) asserta que ambos enums coinciden; si se agrega un event_type nuevo, se agrega en los dos lados."
+          }
+        }
+      }
+    },
+    "tenancy": {
+      "type": "object",
+      "required": ["isolated"],
+      "properties": { "isolated": { "const": true, "description": "Todo modulo DEBE aislar por tenant." } }
+    }
+  }
+}

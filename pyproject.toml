@@ -1,0 +1,22 @@
+[project]
+name = "zac-contracts"
+version = "1.0.0"
+description = "Contratos versionados de Zac (manifest, ledger-event). Unica dependencia comun que DIP permite. El JSON versionado es el artefacto canonico; este paquete es el binding Python."
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["zac_contracts"]
+
+# El JSON canonico vive en schemas/ (language-agnostic). El build lo hornea
+# dentro del paquete para que viaje con el wheel y se lea con importlib.
+# Solo v1: draft/ (handoff-artifact) queda FUERA del distribuible estable (D-A).
+[tool.hatch.build.targets.wheel.force-include]
+"schemas/v1" = "zac_contracts/schemas/v1"
+
+[tool.hatch.build.targets.sdist]
+include = ["zac_contracts", "schemas", "README.md"]

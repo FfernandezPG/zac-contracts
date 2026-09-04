@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zac/contracts/draft/handoff-artifact.schema.json",
+  "title": "Zac Handoff Artifact — envelope (draft)",
+  "description": "Sobre comun para artefactos que pasan de un modulo a otro (brief.md, existing-arch.md, ...). DRAFT: cero consumidores reales hasta Etapa 5 (dsc-sdd -> sdd-model). Se congela a v1 cuando un caso real lo ejercite. NO viaja en el paquete/entrega estable v1: nadie debe depender de el por accidente.",
+  "type": "object",
+  "required": ["artifact_type", "producer", "tenant_id", "location"],
+  "properties": {
+    "artifact_type": { "type": "string", "examples": ["brief.md", "existing-arch.md"] },
+    "producer": { "type": "string" },
+    "tenant_id": { "type": "string" },
+    "version": { "type": "string" },
+    "location": { "type": "string", "description": "Ruta en el storage por tenant." }
+  }
+}

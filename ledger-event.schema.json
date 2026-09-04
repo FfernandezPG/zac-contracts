@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zac/contracts/v1/ledger-event.schema.json",
+  "title": "Zac Ledger Event (v1)",
+  "description": "Evento append-only del ledger central. tenant_id siempre presente.",
+  "$comment": "Este esquema queda ABIERTO a proposito (sin additionalProperties: false). La capa de escritura (zac_sdk.ledger.emit) agrega 'event_id' al item DESPUES de esta validacion: event_id es la clave de fila de la tabla DynamoDB, no contenido del evento, y por diseño no vive en el esquema. Cerrar el esquema rechazaria event_id. Si en el futuro se quiere cerrar, primero hay que declarar event_id explicito aca, lo que contradice la separacion contenido-vs-clave. NO cerrar sin resolver eso primero.",
+  "type": "object",
+  "required": ["tenant_id", "actor", "action", "timestamp", "module"],
+  "properties": {
+    "tenant_id": { "type": "string" },
+    "actor": { "type": "string" },
+    "action": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "module": { "type": "string" },
+    "job_id": { "type": "string" },
+    "event_type": {
+      "enum": ["invocation", "gate_signature", "ingestion", "error"],
+      "$comment": "Fuente de verdad del enum de tipos de evento. El binding Python lo deriva de aca (zac_contracts.event_types) para que el SDK deje de hardcodearlo. audit.events.items del manifiesto espeja este mismo enum."
+    },
+    "detail": { "type": "object" }
+  }
+}
